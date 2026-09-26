@@ -1,0 +1,34 @@
+# Environment
+.env
+*.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Load test results
+locust/reports/
+locust/*.csv
+locust/*.html
+locust/*.stats
+
+# Docker
+docker-compose.override.yml
+*.log
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Grafana
+data/
