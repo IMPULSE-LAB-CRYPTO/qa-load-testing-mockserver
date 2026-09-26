@@ -1,0 +1,121 @@
+services:
+  # ==================== MockServer ====================
+  mockserver:
+    image: mockserver/mockserver:5.15.0
+    container_name: mockserver
+    ports:
+      - "${MOCKSERVER_PORT:-1080}:1080"
+    environment:
+      MOCKSERVER_INITIALIZATION_JSON_PATH: /config/expectations.json
+      MOCKSERVER_WATCH_INITIALIZATION_JSON: "true"
+      MOCKSERVER_LOG_LEVEL: INFO
+    volumes:
+      - ./mockserver/config:/config
+    networks:
+      - loadtest-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:1080/mockserver/status"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 15s
+
+  # ==================== Locust ====================
+  locust:
+    image: locustio/locust:2.32.4
+    container_name: locust
+    ports:
+      - "${LOCUST_WEB_PORT:-8089}:8089"
+      - "${LOCUST_PROMETHEUS_PORT:-9646}:9646"
+    volumes:
+      - ./locust:/mnt/locust
+    command: >
+      -f /mnt/locust/locustfile.py
+      --host http://mockserver:1080
+      --web-host 0.0.0.0
+      --web-port 8089
+    environment:
+      LOCUST_PROMETHEUS_PORT: 9646
+    depends_on:
+      mockserver:
+        condition: service_healthy
+    networks:
+      - loadtest-net
+
+  # ==================== Prometheus ====================
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.time=7d"
+      - "--web.enable-lifecycle"
+    networks:
+      - loadtest-net
+
+  # ==================== Grafana ====================
+  grafana:
+    image: grafana/grafana:11.2.0
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GF_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GF_ADMIN_PASSWORD:-admin}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_INSTALL_PLUGINS: ""
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/etc/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+    networks:
+      - loadtest-net
+
+  # ==================== Node Exporter ====================
+  node-exporter:
+    image: prom/node-exporter:v1.8.2
+    container_name: node-exporter
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - "--path.procfs=/host/proc"
+      - "--path.sysfs=/host/sys"
+      - "--path.rootfs=/rootfs"
+      - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
+    networks:
+      - loadtest-net
+
+  # ==================== cAdvisor ====================
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    container_name: cadvisor
+    ports:
+      - "8080:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    privileged: true
+    devices:
+      - /dev/kmsg
+    networks:
+      - loadtest-net
+
+networks:
+  loadtest-net:
+    driver: bridge
+
+volumes:
+  prometheus_data:
+  grafana_data:
