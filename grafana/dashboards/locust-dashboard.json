@@ -544,7 +544,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "yellow",
+                "color": "green",
                 "value": null
               },
               {
@@ -825,6 +825,6 @@
   "timezone": "browser",
   "title": "NEW: Locust Load Test (MockServer)",
   "uid": "locust-load-test",
-  "version": 2,
+  "version": 3,
   "weekStart": ""
 }
