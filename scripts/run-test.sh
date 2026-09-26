@@ -25,7 +25,7 @@ echo "    users    : 60 (30 + 20 + 10)"
 echo "    reports  : ${PREFIX}.*"
 echo
 
-docker compose exec -T locust locust \
+MSYS_NO_PATHCONV=1 docker compose exec -T locust locust \
   -f /mnt/locust/locustfile.py \
   --host http://mockserver:1080 \
   --headless \
