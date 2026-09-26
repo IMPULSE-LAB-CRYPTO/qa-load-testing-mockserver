@@ -92,7 +92,7 @@ class SecondUser(HttpUser):
             return
         self.client.get(
             f"/api/v1/second?token={token}",
-            name="/api/v1/second?token=[token]",
+            name="/api/v1/second",
         )
 
 
@@ -110,5 +110,5 @@ class ThirdUser(HttpUser):
             return
         self.client.get(
             f"/api/v1/third?token={token}",
-            name="/api/v1/third?token=[token]",
+            name="/api/v1/third",
         )
