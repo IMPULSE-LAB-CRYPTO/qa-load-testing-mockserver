@@ -13,12 +13,6 @@ services:
       - ./mockserver/config:/config
     networks:
       - loadtest-net
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:1080/mockserver/status"]
-      interval: 5s
-      timeout: 3s
-      retries: 20
-      start_period: 15s
 
   # ==================== Locust ====================
   locust:
@@ -38,7 +32,7 @@ services:
       LOCUST_PROMETHEUS_PORT: 9646
     depends_on:
       mockserver:
-        condition: service_healthy
+        condition: service_started
     networks:
       - loadtest-net
 
