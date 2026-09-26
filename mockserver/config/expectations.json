@@ -1,0 +1,77 @@
+[
+  {
+    "httpRequest": {
+      "method": "GET",
+      "path": "/api/v1/init"
+    },
+    "httpResponse": {
+      "statusCode": 200,
+      "body": {
+        "type": "JSON",
+        "json": {
+          "token": "${json-unit.any-string}",
+          "value": 42,
+          "message": "Initialized"
+        }
+      },
+      "delay": {
+        "timeUnit": "MILLISECONDS",
+        "value": 1000
+      }
+    },
+    "scenarioName": "token-flow",
+    "newScenarioState": "initialized"
+  },
+  {
+    "httpRequest": {
+      "method": "GET",
+      "path": "/api/v1/second",
+      "queryStringParameters": {
+        "token": ["${json-unit.any-string}"]
+      }
+    },
+    "httpResponse": {
+      "statusCode": 200,
+      "body": {
+        "type": "JSON",
+        "json": {
+          "status": "second-ok",
+          "token_received": true
+        }
+      },
+      "delay": {
+        "timeUnit": "MILLISECONDS",
+        "value": 1000
+      }
+    },
+    "scenarioName": "token-flow",
+    "scenarioState": "initialized",
+    "newScenarioState": "second-called"
+  },
+  {
+    "httpRequest": {
+      "method": "GET",
+      "path": "/api/v1/third",
+      "queryStringParameters": {
+        "token": ["${json-unit.any-string}"]
+      }
+    },
+    "httpResponse": {
+      "statusCode": 200,
+      "body": {
+        "type": "JSON",
+        "json": {
+          "status": "third-ok",
+          "token_received": true,
+          "final": true
+        }
+      },
+      "delay": {
+        "timeUnit": "MILLISECONDS",
+        "value": 1000
+      }
+    },
+    "scenarioName": "token-flow",
+    "scenarioState": "second-called"
+  }
+]
