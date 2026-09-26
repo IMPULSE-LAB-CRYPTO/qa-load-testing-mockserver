@@ -257,15 +257,15 @@
                 "value": null
               },
               {
-                "color": "dark-red",
+                "color": "green",
                 "value": 0
               },
               {
-                "color": "semi-dark-orange",
+                "color": "yellow",
                 "value": 1
               },
               {
-                "color": "green",
+                "color": "red",
                 "value": 80
               }
             ]
@@ -825,6 +825,6 @@
   "timezone": "browser",
   "title": "NEW: Locust Load Test (MockServer)",
   "uid": "locust-load-test",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }
