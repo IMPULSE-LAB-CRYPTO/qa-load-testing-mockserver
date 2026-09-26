@@ -20,7 +20,6 @@ import time
 
 from locust import HttpUser, task, constant_throughput
 
-
 # Random delay
 MIN_DELAY = 0.5
 MAX_DELAY = 1.5

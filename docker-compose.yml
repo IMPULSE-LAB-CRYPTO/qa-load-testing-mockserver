@@ -16,11 +16,10 @@ services:
 
   # ==================== Locust ====================
   locust:
-    image: locustio/locust:2.32.4
+    build: ./locust
     container_name: locust
     ports:
-      - "${LOCUST_WEB_PORT:-8089}:8089"
-      - "${LOCUST_PROMETHEUS_PORT:-9646}:9646"
+      - "${LOCUST_WEB_PORT:-8089}:8089"   # только веб-интерфейс
     volumes:
       - ./locust:/mnt/locust
     command: >
@@ -28,11 +27,22 @@ services:
       --host http://mockserver:1080
       --web-host 0.0.0.0
       --web-port 8089
-    environment:
-      LOCUST_PROMETHEUS_PORT: 9646
     depends_on:
       mockserver:
         condition: service_started
+    networks:
+      - loadtest-net
+
+  # ==================== Locust-exporter ====================
+  locust-exporter:
+    image: containersol/locust_exporter
+    container_name: locust-exporter
+    ports:
+      - "9646:9646"
+    environment:
+      LOCUST_EXPORTER_URI: http://locust:8089
+    depends_on:
+      - locust
     networks:
       - loadtest-net
 
